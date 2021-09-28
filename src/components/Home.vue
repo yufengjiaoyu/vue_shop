@@ -20,13 +20,15 @@
           :unique-opened="true"
           :collapse='isCollapse'
           :collapse-transition='false'
+          router
+          :default-active="activePath"
         >
-          <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
+          <el-submenu :index="item.path+''" v-for="item in menulist" :key="item.id">
             <template slot="title">
               <i :class="iconsObj[item.id]"></i>
               <span>{{item.authName}}</span>
             </template>
-            <el-menu-item :index="sub_item.id+''" v-for="sub_item in item.children" :key="sub_item.id">
+            <el-menu-item :index="'/'+sub_item.path+''" @click="saveNavState('/'+sub_item.path)" v-for="sub_item in item.children" :key="sub_item.id">
               <template slot="title">
                 <i class='el-icon-menu'></i>
                 <span >{{sub_item.authName}}</span>
@@ -36,7 +38,9 @@
         </el-menu>
       </el-aside>
 
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -47,6 +51,7 @@ export default {
     return{
       menulist:[],
       isCollapse:false,
+      activePath:'',
       iconsObj:{
         '125':'iconfont icon-user',
         '103':'iconfont icon-tijikongjian',
@@ -59,8 +64,13 @@ export default {
 
 created() {
     this.getMenuList()
+    this.activePath=window.sessionStorage.getItem('activePath')
   },
   methods: {
+    saveNavState(activePath){
+    window.sessionStorage.setItem('activePath',activePath)
+    this.activePath=activePath
+    },
     logout() {
       window.sessionStorage.clear()
       this.$router.push('/login')
