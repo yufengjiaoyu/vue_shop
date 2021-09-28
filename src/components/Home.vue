@@ -11,12 +11,12 @@
 
     <el-container>
       <el-aside :width ='isCollapse ? "64px" : "200px"'>
-<div class="toggle-botton" @click="toggleCollapse"><i class='el-icon-d-arrow-left'></i></div>
+<div class="toggle-botton" @click="toggleCollapse"><i  class='el-icon-d-arrow-left'></i></div>
 
         <el-menu
-          background-color="#afeeee"
-          text-color="#2F4F4F"
-          active-text-color="#8B658B"
+          background-color="#5F9EA0"
+          text-color="#D3D3D3"
+          active-text-color="#FFFACD"
           :unique-opened="true"
           :collapse='isCollapse'
           :collapse-transition='false'
@@ -95,7 +95,7 @@ created() {
   height: 100%;
 }
 .el-header {
-  background-color: #4682b4;
+  background-color: #2F4F4F;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -116,11 +116,11 @@ created() {
   }
 }
 .el-aside {
-  background-color: #afeeee;
+  background-color: #5F9EA0;
 }
 
 .el-main {
-  background-color: #e1ffff;
+  background-color:#FFFAFA;
 }
 .iconfont {
   margin-right:10px;
@@ -129,7 +129,10 @@ created() {
 .toggle-botton{
 cursor: pointer;
  text-align:center;
- background-color: #40E0D0;
+ background-color: #528B8B;
+}
+.el-menu {
+  border-right: solid 0px;
 }
 
 </style>

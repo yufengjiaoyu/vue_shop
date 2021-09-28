@@ -20,12 +20,28 @@
       </el-row>
 
       <el-table :data='userlist' border stripe>
+                <el-table-column label="序号" type="index"></el-table-column>
           <el-table-column label="姓名" prop="username"></el-table-column>
              <el-table-column label="邮箱" prop="email"></el-table-column>
                 <el-table-column label="电话" prop="mobile"></el-table-column>
                    <el-table-column label="角色" prop="role_name"></el-table-column>
-                    <el-table-column label="状态" prop="mg_state"></el-table-column>
-                     <el-table-column label="操作"></el-table-column>
+                    <el-table-column label="状态">
+                      <template slot-scope="scope">
+                        <el-switch v-model="scope.row.mg_state">
+                        </el-switch>
+                      </template>
+                     </el-table-column>
+                     <el-table-column label="操作">
+                          <template slot-scope="scope">
+                                    <el-button type="primary" icon="el-icon-edit" circle size="mini"></el-button>
+                                    <el-button type="danger" icon="el-icon-delete" circle size="mini"></el-button>
+                                  
+                                    <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
+                                     <el-button type="warning" icon="el-icon-setting" circle size="mini"></el-button>
+                                    </el-tooltip>
+                          </template>
+
+                     </el-table-column>
           </el-table>
     </el-card>
   </div>
@@ -56,6 +72,7 @@ export default {
      }
        this.userlist = res.data.users
        this.total = res.data.total
+       console.log(res)
        }
       
 
