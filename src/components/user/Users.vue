@@ -10,12 +10,12 @@
       <el-row :gutter="20">
         <el-col :span="7">
             <div>
-            <el-input placeholder="请输入内容" class="input-with-select">
-              <el-button slot="append" icon="el-icon-search"></el-button>
+            <el-input placeholder="请输入内容" class="input-with-select" clearable @clear='getUserList' v-model="queryInfo.query">
+              <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
             </el-input></div>
             </el-col>
              <el-col :span="4">
-            <el-button type="primary">添加用户</el-button>     
+            <el-button type="primary"  @click="dialogVisible = true">添加用户</el-button>     
              </el-col>
       </el-row>
 
@@ -56,13 +56,79 @@
     </el-pagination>
 
     </el-card>
+
+    <el-dialog
+     title="添加用户"
+     :visible.sync="dialogVisible"
+     @close="addDialogClosed"
+     width="50%">
+  <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px" >
+  <el-form-item label="用户名" prop="username">
+    <el-input v-model="addForm.username"></el-input>
+  </el-form-item>
+  <el-form-item label="密码" prop="passsword">
+    <el-input type="password" v-model="addForm.passsword"></el-input>
+  </el-form-item>
+  <el-form-item label="邮箱" prop="email">
+    <el-input v-model="addForm.email"></el-input>
+  </el-form-item>
+  <el-form-item label="手机" prop="mobile">
+    <el-input v-model="addForm.mobile"></el-input>
+  </el-form-item>
+  </el-form>
+  
+   <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="addUser">确 定</el-button>
+  </span>
+</el-dialog>
+
   </div>
 </template>
 
 <script>
 export default {
     data(){
+      var checkEmail = (rule, value, cb) => {
+      const regEmail = /^\w+@\w+(\.\w+)+$/
+       if (regEmail.test(value)) {
+      return cb()
+      }
+    //返回一个错误提示
+    cb(new Error('请输入合法的邮箱'))
+      }
+
+      var checkMobile = (rule, value, cb) => {
+      const regMobile = /^1[34578]\d{9}$/
+       if (regMobile.test(value)) {
+      return cb()
+       }
+       //返回一个错误提示
+        cb(new Error('请输入合法的手机号码'))
+         }
+
       return{
+         dialogVisible: false,
+         addForm:{
+           username:'',
+           passsword:'',
+            email:'',
+            mobile:''
+         },
+         addFormRules:{
+           username:[{required:true,message:'请输入用户名',trigger:'blur'},
+                     {min:3,max:10,message:'用户名长度为3-10个字符',trigger:'blur'}
+                     ],
+           passsword:[{required:true,message:'请输入密码',trigger:'blur'},
+                     {min:6,max:15,message:'密码长度为6-15个字符',trigger:'blur'}
+                     ],
+            email:[{required:true,message:'请输入邮箱',trigger:'blur'},
+                   {validator:checkEmail,trigger:'blur'}],
+            mobile:[{required:true,message:'请输入手机',trigger:'blur'},
+                   {validator:checkMobile,trigger:'blur'}],
+
+
+          },
           queryInfo:{
               query: '',
               pagenum: 1,
@@ -78,6 +144,19 @@ export default {
 
     },
     methods:{
+      addUser(){
+       this.$refs.addFormRef.validate(valid => {
+        console.log(valid)
+        if(!valid) return
+
+         })
+      },
+    
+     addDialogClosed(){
+              
+    this.$refs.addFormRef.resetFields()
+     },
+   
       async getUserList(){
      const { data: res }= await this.$http.get('users',{params: this.queryInfo})
      if (res.meta.status !== 200) {return this.$message.error('获取用户列表失败')
@@ -105,7 +184,7 @@ export default {
       return this.$message.success('修改状态成功')
     
     }
-    },
+    }
     
 }
 </script>
