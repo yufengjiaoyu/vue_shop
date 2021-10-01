@@ -34,8 +34,9 @@
                      <el-table-column label="操作">
                           <template slot-scope="scope">
                                     <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(scope.row.id)" circle size="mini"></el-button>
-                                    <el-button type="danger" icon="el-icon-delete" circle size="mini"></el-button>
-                                  
+                                    <!-- 删除按钮 -->
+                                    <el-button type="danger" @click="removeUser(scope.row.id)" icon="el-icon-delete" circle size="mini"></el-button>
+                                    <!-- 分配角色 -->
                                     <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
                                      <el-button type="warning" icon="el-icon-setting" circle size="mini"></el-button>
                                     </el-tooltip>
@@ -43,8 +44,6 @@
 
                      </el-table-column>
           </el-table>
-        
-    
     <el-pagination class="pagination"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
@@ -76,7 +75,6 @@
     <el-input v-model="addForm.mobile"></el-input>
   </el-form-item>
   </el-form>
-  
    <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
     <el-button type="primary" @click="addUser">确 定</el-button>
@@ -87,7 +85,7 @@
 <el-dialog
   title="修改用户"
   :visible.sync="editDialogVisible"
-  width="50%">
+  width="50%" @close='editDialogClosed'>
 
   <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
   <el-form-item label="用户名">
@@ -103,7 +101,7 @@
 
   <span slot="footer" class="dialog-footer">
     <el-button @click="editDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
+    <el-button type="primary" @click="editUserInfo">确 定</el-button>
   </span>
 </el-dialog>
 
@@ -112,130 +110,151 @@
 
 <script>
 export default {
-    data(){
-      var checkEmail = (rule, value, cb) => {
+  data() {
+    var checkEmail = (rule, value, cb) => {
       const regEmail = /^\w+@\w+(\.\w+)+$/
-       if (regEmail.test(value)) {
-      return cb()
+      if (regEmail.test(value)) {
+        return cb()
       }
-    //返回一个错误提示
-    cb(new Error('请输入合法的邮箱'))
-      }
+      // 返回一个错误提示
+      cb(new Error('请输入合法的邮箱'))
+    }
 
-      var checkMobile = (rule, value, cb) => {
+    var checkMobile = (rule, value, cb) => {
       const regMobile = /^1[34578]\d{9}$/
-       if (regMobile.test(value)) {
-      return cb()
-       }
-       //返回一个错误提示
-        cb(new Error('请输入合法的手机号码'))
-         }
-
-      return{
-        editForm:{
-            username:'',
-              email:'',
-                mobile:''
-        },
-         dialogVisible: false,
-         editDialogVisible:false,
-          addForm:{
-           username:'',
-           password:'',
-            email:'',
-            mobile:''
-         },
-         editFormRules:{
-           email:[{required:true,message:'请输入邮箱',trigger:'blur'},
-                   {validator:checkEmail,trigger:'blur'}],
-            mobile:[{required:true,message:'请输入手机',trigger:'blur'},
-                   {validator:checkMobile,trigger:'blur'}],
-
-         },
-         addFormRules:{
-           username:[{required:true,message:'请输入用户名',trigger:'blur'},
-                     {min:3,max:10,message:'用户名长度为3-10个字符',trigger:'blur'}
-                     ],
-           password:[{required:true,message:'请输入密码',trigger:'blur'},
-                     {min:6,max:15,message:'密码长度为6-15个字符',trigger:'blur'}
-                     ],
-            email:[{required:true,message:'请输入邮箱',trigger:'blur'},
-                   {validator:checkEmail,trigger:'blur'}],
-            mobile:[{required:true,message:'请输入手机',trigger:'blur'},
-                   {validator:checkMobile,trigger:'blur'}],
-
-
-          },
-          queryInfo:{
-              query: '',
-              pagenum: 1,
-              pagesize: 2
-          },
-          userlist:[],
-          total:0
-        
+      if (regMobile.test(value)) {
+        return cb()
       }
-    },
-    created(){
-        this.getUserList()
+      // 返回一个错误提示
+      cb(new Error('请输入合法的手机号码'))
+    }
 
-    },
-    methods:{
-     async showEditDialog(id){
-       const { data: res } = await this.$http.get('users/'+id)
-       if(res.meta.status !==200){
-         return this.message.error('查询用户信息失败')
-       }
-       this.editForm = res.data
-        this.editDialogVisible = true
- 
+    return {
+      editForm: {
+        username: '',
+        email: '',
+        mobile: ' '
       },
-      addUser(){
-        this.$refs.addFormRef.validate(async valid => {
-        if(!valid) return
+      dialogVisible: false,
+      editDialogVisible: false,
+      addForm: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      editFormRules: {
+        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }],
+        mobile: [{ required: true, message: '请输入手机', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }]
+
+      },
+      addFormRules: {
+        username: [{ required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '用户名长度为3-10个字符', trigger: 'blur' }
+        ],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '密码长度为6-15个字符', trigger: 'blur' }
+        ],
+        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }],
+        mobile: [{ required: true, message: '请输入手机', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }]
+
+      },
+      queryInfo: {
+        query: '',
+        pagenum: 1,
+        pagesize: 2
+      },
+      userlist: [],
+      total: 0
+    }
+  },
+  created() {
+    this.getUserList()
+  },
+  methods: {
+    async removeUser(id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除')
+      }
+      const { data: res } = await this.$http.delete('users/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message('删除用户失败')
+      }
+      this.$message.success('删除用户成功')
+      this.getUserList()
+    },
+    editUserInfo() {
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return
+        const { data: res } = await this.$http.put('users/' + this.editForm.id, { email: this.editForm.email, mobile: this.editForm.mobile })
+        if (res.meta.status !== 200) {
+          return this.$message.error('更新用户信息失败')
+        }
+        this.editDialogVisible = false
+        this.getUserList()
+        this.$message.success('更新用户信息成功')
+      })
+    },
+    editDialogClosed() {
+      this.$refs.editFormRef.resetFields()
+    },
+    async showEditDialog(id) {
+      const { data: res } = await this.$http.get('users/'+id)
+      if (res.meta.status !== 200) {
+        return this.message.error('查询用户信息失败')
+      }
+      this.editForm = res.data
+      this.editDialogVisible = true
+    },
+    addUser() {
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return
         const { data: res } = await this.$http.post('users', this.addForm)
-        if(res.meta.status !== 201){
+        if (res.meta.status !== 201) {
           this.$message.error('添加用户失败')
         }
         this.$message.success('添加用户成功')
         this.dialogVisible = false
         this.getUserList()
-         })
-      },
-    
-     addDialogClosed(){
-              
-    this.$refs.addFormRef.resetFields()
-     },
-   
-      async getUserList(){
-     const { data: res }= await this.$http.get('users',{params: this.queryInfo})
-     if (res.meta.status !== 200) {return this.$message.error('获取用户列表失败')
-     }
-       this.userlist = res.data.users
-       this.total = res.data.total
-       },
-       handleSizeChange(newSize){
-    this.queryInfo.pagesize = newSize
+      })
+    },
+    addDialogClosed() {
+      this.$refs.addFormRef.resetFields()
+    },
+    async getUserList() {
+      const { data: res } = await this.$http.get('users', { params: this.queryInfo })
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取用户列表失败')
+      }
+      this.userlist = res.data.users
+      this.total = res.data.total
+    },
+    handleSizeChange(newSize) {
+      this.queryInfo.pagesize = newSize
       this.getUserList()
-
     },
-    handleCurrentChange(newPage){
-     this.queryInfo.pagenum = newPage
-     this.getUserList()
-    
+    handleCurrentChange(newPage) {
+      this.queryInfo.pagenum = newPage
+      this.getUserList()
     },
-    async userStateChange(userInfo){
-    const {data: res} = await  this.$http.put(`users/${userInfo.id}/state/${userInfo.mg_state}`)
-    if(res.meta.status !== 200) {
-      return this.$message.error('修改状态失败')
-      userInfo.mg_state = !userInfo.mg_state
-    }
+    async userStateChange(userInfo) {
+      const { data: res } = await this.$http.put(`users/${userInfo.id}/state/${userInfo.mg_state}`)
+      if (res.meta.status !== 200) {
+        return this.$message.error('修改状态失败')
+        userInfo.mg_state = !userInfo.mg_state
+      }
       return this.$message.success('修改状态成功')
-    
     }
-    }
-    
+  }
 }
 </script>
 
@@ -257,4 +276,3 @@ text-align: center;
 }
 
 </style>>
-
