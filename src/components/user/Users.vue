@@ -1,12 +1,14 @@
 <template>
   <div>
+    <!-- 面包屑导航 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
-
+<!-- 卡片视图区域 -->
     <el-card>
+      <!-- 搜索与天津区域 -->
       <el-row :gutter="20">
         <el-col :span="7">
             <div>
@@ -19,6 +21,7 @@
              </el-col>
       </el-row>
 
+<!-- 用户列表去 -->
       <el-table :data='userlist' border stripe>
                 <el-table-column label="序号" type="index"></el-table-column>
           <el-table-column label="姓名" prop="username"></el-table-column>

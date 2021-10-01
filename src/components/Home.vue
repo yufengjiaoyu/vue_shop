@@ -47,43 +47,41 @@
 
 <script>
 export default {
-  data(){
-    return{
-      menulist:[],
-      isCollapse:false,
-      activePath:'',
-      iconsObj:{
-        '125':'iconfont icon-user',
-        '103':'iconfont icon-tijikongjian',
-        '101':'iconfont icon-shangpin',
-        '102':'iconfont icon-danju',
-        '145':'iconfont icon-baobiao' 
+  data() {
+    return {
+      menulist: [],
+      isCollapse: false,
+      activePath: '',
+      iconsObj: {
+        '125': 'iconfont icon-user',
+        '103': 'iconfont icon-tijikongjian',
+        '101': 'iconfont icon-shangpin',
+        '102': 'iconfont icon-danju',
+        '145': 'iconfont icon-baobiao'
       }
     }
   },
 
-created() {
+  created() {
     this.getMenuList()
-    this.activePath=window.sessionStorage.getItem('activePath')
+    this.activePath = window.sessionStorage.getItem('activePath')
   },
   methods: {
-    saveNavState(activePath){
-    window.sessionStorage.setItem('activePath',activePath)
-    this.activePath=activePath
+    saveNavState(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
     },
     logout() {
       window.sessionStorage.clear()
       this.$router.push('/login')
     },
-    toggleCollapse(){
-      this.isCollapse=!this.isCollapse
-
+    toggleCollapse() {
+      this.isCollapse = !this.isCollapse
     },
     async getMenuList() {
       const { data: res } = await this.$http.get('menus')
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
-        this.menulist = res.data
-        console.log(this.menulist)
+      this.menulist = res.data
     }
   }
 }
