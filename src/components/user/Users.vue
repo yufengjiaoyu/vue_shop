@@ -36,6 +36,7 @@
                      </el-table-column>
                      <el-table-column label="操作">
                           <template slot-scope="scope">
+                                    <!-- 编辑用户 -->
                                     <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(scope.row.id)" circle size="mini"></el-button>
                                     <!-- 删除按钮 -->
                                     <el-button type="danger" @click="removeUser(scope.row.id)" icon="el-icon-delete" circle size="mini"></el-button>
@@ -58,7 +59,7 @@
     </el-pagination>
 
     </el-card>
-
+<!-- 添加用户弹框 -->
     <el-dialog
      title="添加用户"
      :visible.sync="dialogVisible"
@@ -276,6 +277,9 @@ export default {
 }
 .pagination{
 text-align: center;
-}
 
+}
+.el-tag {
+  margin: 7px;
+}
 </style>>
